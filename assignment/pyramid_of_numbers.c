@@ -76,5 +76,19 @@ void copy_big_int(const struct BigInt *from, struct BigInt *to);
 */
 int main(int argc, char *argv[])
 {
+	struct BigInt big_int;
+	int count = 0;
+	char intInChar[MAX_DIGITS];
+	bool onlyDigits = true;
+	printf("Please enter a number: ");
+	scanf("%s\n", intInChar);
+	for (size_t i = 0; i < MAX_DIGITS; i++) {
+		if (intInChar[i] < '0' && intInChar[i] > '9' || intInChar == "") {
+			onlyDigits = ;
+		}
+	}
+	if (onlyDigits) {
+		strtobig_int(intInChar, strlen(intInChar), &big_int);
+	}
 	return 0;
 }
