@@ -12,7 +12,9 @@
  * again starting by 2, 3, etc.
  * ----------------------------------------------------------
  */
+
 #include <stdio.h>
+#include <string.h>
 
 /// The maximum number of digits allowed in a big int.
 #define MAX_DIGITS 80
@@ -36,32 +38,74 @@ struct BigInt {
 *** @param *big_int The converted string now as BigInt.
 * @return The number of characters converted.
 */
-int strtobig_int(const char *str, int len, struct BigInt *big_int);
-
+int strtobig_int(const char *str, int len, struct BigInt *big_int){
+	int count = 0;
+		len--;
+		for (int i = 0;i < len+1; i++)
+		{
+				big_int->the_int[len-i] = str[i]-'0';
+				count++;
+		}
+return count;
+}
 /** print_big_int() prints a BigInt.
 *** @param *big_int The BigInt to be printed.
 */
-void print_big_int(const struct BigInt *big_int);
+void print_big_int(const struct BigInt *big_int){
+	for (int i = big_int->digits_count-1; i >=0 ; i--){
+		printf("%d",big_int->the_int[i]);
+	}
+}
 
-/** multiply() multiplies a BigInt by an int.
-*** @param big_int The BigInt to be multiplied.
-*** @param factor The int value which is multiplied by BigInt.
-*** @param *big_result The result of the multiplication.
-*/
-void multiply(const struct BigInt *big_int, int factor, struct BigInt *big_result);
+void multiply(const struct BigInt *big_int, int factor, struct BigInt *big_result)
+{
+	int new_digit = 0;
+	int rest = 0;
+	for (int i = 0; i < big_int->digits_count; i++)
+	{
+			new_digit = big_int->the_int[i] * factor + rest;
+			rest = new_digit/10;
+			big_result->the_int[i] = new_digit%10;
+	}
+	if (rest > 0)
+	{
+			big_result->digits_count++;
+			big_result->the_int[big_result->digits_count - 1] = rest;
+}
+}
 
-/** divide() multiplies a BigInt by an int.
-*** @param big_int The BigInt to be divided.
-*** @param divisor The int value by which we want to devide big_int.
-*** @param *big_result The result of the division.
-*/
-void divide(const struct BigInt *big_int, int divisor, struct BigInt *big_result);
 
-/** copy_big_int() copies a BigInt to another BigInt.
-*** @param from The source where we want to copy from.
-*** @param *to The target where we want to copy to.
-*/
-void copy_big_int(const struct BigInt *from, struct BigInt *to);
+void divide(const struct BigInt *big_int, int divisor, struct BigInt *big_result)
+{
+	int new_digit= 0;
+	int rest = 0;
+	int sum_of_digits = 0;
+	for (int i = big_int->digits_count-1; i >=0; i--)
+	{
+		new_digit = big_int->the_int[i] + (rest*10);
+		big_result->the_int[i] = new_digit/divisor;
+		rest= new_digit %divisor;
+		sum_of_digits += big_result->the_int[i];
+
+		if (sum_of_digits == 0)
+		{
+			big_result->digits_count--;
+		}
+	}
+}
+
+
+void copy_big_int(const struct BigInt *from, struct BigInt *to)
+{
+	for (int i = 0; i < from->digits_count; i++)
+	{
+			to->the_int[i] = from->the_int[i];
+	  }
+		if (from->digits_count != to->digits_count)
+	 	{
+	 		to->digits_count = from->digits_count;
+		}
+}
 
 /**
 *** main() reads the base number from which the pyramid has to be calculated
@@ -77,18 +121,36 @@ void copy_big_int(const struct BigInt *from, struct BigInt *to);
 int main(int argc, char *argv[])
 {
 	struct BigInt big_int;
-	int count = 0;
+	struct BigInt big_result;
 	char intInChar[MAX_DIGITS];
-	bool onlyDigits = true;
 	printf("Please enter a number: ");
-	scanf("%s\n", intInChar);
+	scanf("%s", intInChar);
 	for (size_t i = 0; i < MAX_DIGITS; i++) {
-		if (intInChar[i] < '0' && intInChar[i] > '9' || intInChar == "") {
-			onlyDigits = ;
+		if (intInChar[i] < '0' && intInChar[i] > '9') {
+			return 0;
 		}
 	}
-	if (onlyDigits) {
-		strtobig_int(intInChar, strlen(intInChar), &big_int);
-	}
+	big_int.digits_count = strtobig_int(intInChar, strlen(intInChar), &big_int);
+	big_result.digits_count = big_int.digits_count;
+
+	for (int i = 2; i < 10; i++)
+		{
+			print_big_int(&big_int);
+			printf(" * %d = ", i);
+			multiply(&big_int, i, &big_result);
+			print_big_int(&big_result);
+			printf("\n");
+			copy_big_int(&big_result, &big_int);
+		}
+		for (int i = 2; i < 10; i++)
+		{
+			print_big_int(&big_int);
+			printf(" / %d = ", i);
+			divide(&big_int, i, &big_result);
+			print_big_int(&big_result);
+			printf("\n");
+			copy_big_int(&big_result, &big_int);
+		}
+
 	return 0;
 }
